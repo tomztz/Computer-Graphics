@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,10 +9,11 @@
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
-
 #include <iostream>
+#include <vector>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int modifiers);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
@@ -19,9 +21,13 @@ void processInput(GLFWwindow* window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+int useWireframe = 0;
+int displayGrayscale = 0;
 
-// camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+// camera - give pretty starting point
+Camera camera(glm::vec3(67.0f, 20.0f, 169.9f),
+    glm::vec3(0.0f, 1.0f, 0.0f),
+    -128.1f, -42.4f);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -45,7 +51,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -54,6 +60,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
@@ -67,25 +74,90 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
     stbi_set_flip_vertically_on_load(true);
-
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
-    // build and compile shaders
-    // -------------------------
+    // build and compile our shader program
+    // ------------------------------------
     Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
+    Shader heightMapShader("8.3.cpuheight.vs", "8.3.cpuheight.fs");
 
-    // load models
-    // -----------
     Model ourModel("models/test/mysnowman.obj");
+    // load and create a texture
+    // -------------------------
+    // load image, create texture and generate mipmaps
+    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load("resources/heightmaps/iceland_heightmap.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
 
 
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    std::vector<float> vertices;
+    float yScale = 64.0f / 256.0f, yShift = 16.0f;
+    int rez = 1;
+    unsigned bytePerPixel = nrChannels;
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            unsigned char* pixelOffset = data + (j + width * i) * bytePerPixel;
+            unsigned char y = pixelOffset[0];
+
+            // vertex
+            vertices.push_back(-height / 2.0f + height * i / (float)height);   // vx
+            vertices.push_back((int)y * yScale - yShift);   // vy
+            vertices.push_back(-width / 2.0f + width * j / (float)width);   // vz
+        }
+    }
+    std::cout << "Loaded " << vertices.size() / 3 << " vertices" << std::endl;
+    stbi_image_free(data);
+
+    std::vector<unsigned> indices;
+    for (unsigned i = 0; i < height - 1; i += rez)
+    {
+        for (unsigned j = 0; j < width; j += rez)
+        {
+            for (unsigned k = 0; k < 2; k++)
+            {
+                indices.push_back(j + width * (i + k * rez));
+            }
+        }
+    }
+    std::cout << "Loaded " << indices.size() << " indices" << std::endl;
+
+    const int numStrips = (height - 1) / rez;
+    const int numTrisPerStrip = (width / rez) * 2 - 2;
+    std::cout << "Created lattice of " << numStrips << " strips with " << numTrisPerStrip << " triangles each" << std::endl;
+    std::cout << "Created " << numStrips * numTrisPerStrip << " triangles total" << std::endl;
+
+    // first, configure the cube's VAO (and terrainVBO + terrainIBO)
+    unsigned int terrainVAO, terrainVBO, terrainIBO;
+    glGenVertexArrays(1, &terrainVAO);
+    glBindVertexArray(terrainVAO);
+
+    glGenBuffers(1, &terrainVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &terrainIBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
     // render loop
     // -----------
@@ -93,41 +165,64 @@ int main()
     {
         // per-frame time logic
         // --------------------
-        float currentFrame = static_cast<float>(glfwGetTime());
+        float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
-        // -----
+        //        std::cout << deltaTime << "ms (" << 1.0f / deltaTime << " FPS)" << std::endl;
+
+                // input
+                // -----
         processInput(window);
 
         // render
         // ------
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // don't forget to enable shader before setting uniforms
-        ourShader.use();
+        // be sure to activate shader when setting uniforms/drawing objects
+        heightMapShader.use();
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+        heightMapShader.setMat4("projection", projection);
+        heightMapShader.setMat4("view", view);
 
-        // render the loaded model
+        // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        heightMapShader.setMat4("model", model);
 
+        // render the cube
+        glBindVertexArray(terrainVAO);
+        //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        for (unsigned strip = 0; strip < numStrips; strip++)
+        {
+            glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
+                numTrisPerStrip + 2,   // number of indices to render
+                GL_UNSIGNED_INT,     // index data type
+                (void*)(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
+        }
+        glm::mat4 projection1 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
+        glm::mat4 model1 = glm::mat4(1.0f);
+        model1 = glm::translate(model, glm::vec3(57.0f, 12.5f, 159.9f)); // translate it down so it's at the center of the scene
+        ourShader.use();
+        ourShader.setMat4("projection", projection1);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("model", model1);
+        ourModel.Draw(ourShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // optional: de-allocate all resources once they've outlived their purpose:
+    // ------------------------------------------------------------------------
+    glDeleteVertexArrays(1, &terrainVAO);
+    glDeleteBuffers(1, &terrainVBO);
+    glDeleteBuffers(1, &terrainIBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -156,18 +251,36 @@ void processInput(GLFWwindow* window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
+// glfw: whenever a key event occurs, this callback is called
+// ---------------------------------------------------------------------------------------------
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int modifiers)
+{
+    if (action == GLFW_PRESS)
+    {
+        switch (key)
+        {
+        case GLFW_KEY_SPACE:
+            useWireframe = 1 - useWireframe;
+            break;
+        case GLFW_KEY_G:
+            displayGrayscale = 1 - displayGrayscale;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
     if (firstMouse)
     {
         lastX = xpos;
@@ -188,5 +301,5 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    camera.ProcessMouseScroll(yoffset);
 }
