@@ -84,7 +84,8 @@ int main()
     Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
     Shader heightMapShader("8.3.cpuheight.vs", "8.3.cpuheight.fs");
 
-    Model ourModel("models/test/mysnowman.obj");
+    Model head("models/head/head.obj");
+    Model body("models/body/body.obj");
     // load and create a texture
     // -------------------------
     // load image, create texture and generate mipmaps
@@ -159,6 +160,9 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
+    float rotation = 0.0f;
+    double prevTime = glfwGetTime();
+    bool a = true;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -179,6 +183,26 @@ int main()
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        double crntTime = glfwGetTime();
+        if (crntTime - prevTime >= 1 / 60)
+        {
+            if (rotation <= 25.0f&& a) {
+                rotation += 0.3f;
+                prevTime = crntTime;
+                if (rotation > 25.0f) {
+                    a = false;
+                }
+            }
+            else {
+                rotation -= 0.3f;
+                prevTime = crntTime;
+                if (rotation <= -25.0f) {
+                    a = true;
+                }
+            }
+           
+        }
 
         // be sure to activate shader when setting uniforms/drawing objects
         heightMapShader.use();
@@ -210,8 +234,14 @@ int main()
         ourShader.setMat4("projection", projection1);
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model1);
-        ourModel.Draw(ourShader);
+        body.Draw(ourShader);
 
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, glm::vec3(57.0f, 12.5f, 159.9f));
+        model2 = glm::rotate(model2, glm::radians(rotation),glm::vec3(0.0,1.0,0.0));
+
+        ourShader.setMat4("model", model2);
+        head.Draw(ourShader);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
