@@ -86,6 +86,19 @@ int main()
 
     Model head("models/head/head.obj");
     Model body("models/body/body.obj");
+
+    Model head1("models/head/head.obj");
+    Model body1("models/body/body.obj");
+
+    Model head2("models/head/head.obj");
+    Model body2("models/body/body.obj");
+
+    Model head3("models/head/head.obj");
+    Model body3("models/body/body.obj");
+
+    Model head4("models/head/head.obj");
+    Model body4("models/body/body.obj");
+      
     // load and create a texture
     // -------------------------
     // load image, create texture and generate mipmaps
@@ -162,7 +175,10 @@ int main()
 
     float rotation = 0.0f;
     double prevTime = glfwGetTime();
-    bool a = true;
+    bool doRotate = true;
+    float move = 57.0f;
+    float move1 = 39.0f;
+    bool doMove = true;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -187,18 +203,35 @@ int main()
         double crntTime = glfwGetTime();
         if (crntTime - prevTime >= 1 / 60)
         {
-            if (rotation <= 25.0f&& a) {
+            if (rotation <= 25.0f&& doRotate) {
                 rotation += 0.3f;
                 prevTime = crntTime;
                 if (rotation > 25.0f) {
-                    a = false;
+                    doRotate = false;
                 }
             }
             else {
                 rotation -= 0.3f;
                 prevTime = crntTime;
                 if (rotation <= -25.0f) {
-                    a = true;
+                    doRotate = true;
+                }  
+            }
+
+            if (move <= 57.0f && doMove) {
+                move -= 0.3f;
+                move1 += 0.3f;
+                prevTime = crntTime;
+                if (move < 39.0f) {
+                    doMove = false;
+                }
+            }
+            else {
+                move += 0.3f;
+                move1 -= 0.3f;
+                prevTime = crntTime;
+                if (move >= 57.0f) {
+                    doMove = true;
                 }
             }
            
@@ -229,19 +262,72 @@ int main()
         }
         glm::mat4 projection1 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         glm::mat4 model1 = glm::mat4(1.0f);
-        model1 = glm::translate(model, glm::vec3(57.0f, 12.5f, 159.9f)); // translate it down so it's at the center of the scene
+        model1 = glm::translate(model, glm::vec3(move, 12.5f, 159.9f)); // translate it down so it's at the center of the scene
         ourShader.use();
         ourShader.setMat4("projection", projection1);
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model1);
         body.Draw(ourShader);
+        
 
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(57.0f, 12.5f, 159.9f));
+        model2 = glm::translate(model2, glm::vec3(move, 12.5f, 159.9f));
         model2 = glm::rotate(model2, glm::radians(rotation),glm::vec3(0.0,1.0,0.0));
-
         ourShader.setMat4("model", model2);
         head.Draw(ourShader);
+
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model, glm::vec3(move, 12.5f, 149.9f));
+        ourShader.setMat4("projection", projection1);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("model", model3);
+        body1.Draw(ourShader);
+
+        glm::mat4 model4 = glm::mat4(1.0f);
+        model4 = glm::translate(model4, glm::vec3(move, 12.5f, 149.9f));
+        model4 = glm::rotate(model4, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model4);
+        head1.Draw(ourShader);
+
+        glm::mat4 model5 = glm::mat4(1.0f);
+        model5 = glm::translate(model, glm::vec3(move, 12.5f, 139.9f));
+        ourShader.setMat4("projection", projection1);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("model", model5);
+        body2.Draw(ourShader);
+
+        glm::mat4 model6 = glm::mat4(1.0f);
+        model6 = glm::translate(model6, glm::vec3(move, 12.5f, 139.9f));
+        model6 = glm::rotate(model6, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model6);
+        head2.Draw(ourShader);
+
+        glm::mat4 model7 = glm::mat4(1.0f);
+        model7 = glm::translate(model, glm::vec3(move1, 12.5f, 154.9f));
+        ourShader.setMat4("projection", projection1);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("model", model7);
+        body3.Draw(ourShader);
+
+        glm::mat4 model8 = glm::mat4(1.0f);
+        model8 = glm::translate(model8, glm::vec3(move1, 12.5f, 154.9f));
+        model8 = glm::rotate(model8, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model8);
+        head3.Draw(ourShader);
+
+
+        glm::mat4 model9 = glm::mat4(1.0f);
+        model9 = glm::translate(model, glm::vec3(move1, 12.5f, 144.9f));
+        ourShader.setMat4("projection", projection1);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("model", model9);
+        body4.Draw(ourShader);
+
+        glm::mat4 model10 = glm::mat4(1.0f);
+        model10 = glm::translate(model10, glm::vec3(move1, 12.5f, 144.9f));
+        model10 = glm::rotate(model10, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model10);
+        head4.Draw(ourShader);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
