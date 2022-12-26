@@ -144,6 +144,10 @@
   <ItemGroup>
     <None Include="..\LearnOpenGL\src\3.model_loading\1.model_loading\1.model_loading.fs" />
     <None Include="..\LearnOpenGL\src\3.model_loading\1.model_loading\1.model_loading.vs" />
+    <None Include="6.light_cube.fs" />
+    <None Include="6.light_cube.vs" />
+    <None Include="6.multiple_lights.fs" />
+    <None Include="6.multiple_lights.vs" />
     <None Include="8.3.cpuheight.fs" />
     <None Include="8.3.cpuheight.vs" />
   </ItemGroup>

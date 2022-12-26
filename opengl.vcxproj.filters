@@ -41,5 +41,17 @@
     <None Include="8.3.cpuheight.vs">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="6.light_cube.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="6.light_cube.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="6.multiple_lights.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="6.multiple_lights.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
