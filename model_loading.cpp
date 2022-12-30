@@ -17,6 +17,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+unsigned int loadTexture(const char* path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -84,7 +85,6 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
     Shader heightMapShader("8.3.cpuheight.vs", "8.3.cpuheight.fs");
     Shader lightingShader("6.multiple_lights.vs", "6.multiple_lights.fs");
     Shader lightCubeShader("6.light_cube.vs", "6.light_cube.fs");
@@ -92,17 +92,17 @@ int main()
     Model head("models/head/head.obj");
     Model body("models/body/body.obj");
 
-    Model head1("models/head/head.obj");
-    Model body1("models/body/body.obj");
+    Model head1("models/headMarble/head.obj");
+    Model body1("models/bodyMarble/bodyMarble.obj");
 
-    Model head2("models/head/head.obj");
-    Model body2("models/body/body.obj");
+    Model head2("models/headWood/head.obj");
+    Model body2("models/bodyWood/body.obj");
 
-    Model head3("models/head/head.obj");
-    Model body3("models/body/body.obj");
+    Model head3("models/headTiles/head.obj");
+    Model body3("models/bodyTiles/body.obj");
 
-    Model head4("models/head/head.obj");
-    Model body4("models/body/body.obj");
+    Model head4("models/headMetal/head.obj");
+    Model body4("models/bodyMetal/bodyMetal.obj");
       
     // load and create a texture
     // -------------------------
@@ -209,10 +209,17 @@ int main()
     };
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
-        glm::vec3(57.0f,  18.5f,  157.9f),
-        glm::vec3(27.0f, 18.5f,157.9f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3(0.0f,  0.0f, -3.0f)
+        glm::vec3(57.0f,  18.5f,  154.9f),
+        glm::vec3(37.0f, 18.5f,154.9f),
+        glm::vec3(57.0f,  18.5f, 144.9f),
+        glm::vec3(37.0f,  18.5f, 144.9f)
+    };
+
+    glm::vec3 pointLightColours[] = {
+    glm::vec3(1.0f,  1.0f,  0.0f),
+    glm::vec3(1.0f, 0.5f, 0.0f),
+    glm::vec3(0.0f,  1.0f,  0.0f),
+    glm::vec3(1.0f,  0.0f,  1.0f),
     };
 
     // first, configure the cube's VAO (and VBO)
@@ -240,11 +247,7 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // shader configuration
-    // --------------------
-    lightingShader.use();
-    lightingShader.setInt("material.diffuse", 0);
-    lightingShader.setInt("material.specular", 1);
+
     // first, configure the cube's VAO (and terrainVBO + terrainIBO)
     unsigned int terrainVAO, terrainVBO, terrainIBO;
     glGenVertexArrays(1, &terrainVAO);
@@ -268,8 +271,25 @@ int main()
     float move = 57.0f;
     float move1 = 39.0f;
     bool doMove = true;
+
+    unsigned int diffuseMap = loadTexture("models/bodyMetal/MetalCorrodedHeavy001_REFL_2K_SPECULAR.jpg");
+    unsigned int specularMap = loadTexture("models/bodyMetal/MetalCorrodedHeavy001_COL_2K_SPECULAR.jpg");
+
+    unsigned int diffuseMap1 = loadTexture("models/bodyMarble/Marble13_COL_1K.jpg");
+    unsigned int specularMap1 = loadTexture("models/bodyMarble/Marble13_REFL_1K.jpg");
+
+    unsigned int diffuseMap2 = loadTexture("models/bodyWood/WoodFineDark004_COL_2K.jpg");
+    unsigned int specularMap2 = loadTexture("models/bodyWood/WoodFineDark004_REFL_2K.jpg");
+
+    unsigned int diffuseMap3 = loadTexture("models/bodyTiles/TilesCeramicSubwayOffsetCrackle002_COL_4K.jpg");
+    unsigned int specularMap3 = loadTexture("models/bodyTiles/TilesCeramicSubwayOffsetCrackle002_REFL_4K.jpg");
     // render loop
     // -----------
+    lightingShader.use();
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
+
+    
     while (!glfwWindowShouldClose(window))
     {
         // per-frame time logic
@@ -293,14 +313,14 @@ int main()
         if (crntTime - prevTime >= 1 / 60)
         {
             if (rotation <= 25.0f&& doRotate) {
-                rotation += 0.3f;
+                rotation += 0.4f;
                 prevTime = crntTime;
                 if (rotation > 25.0f) {
                     doRotate = false;
                 }
             }
             else {
-                rotation -= 0.3f;
+                rotation -= 0.4f;
                 prevTime = crntTime;
                 if (rotation <= -25.0f) {
                     doRotate = true;
@@ -308,16 +328,16 @@ int main()
             }
 
             if (move <= 57.0f && doMove) {
-                move -= 0.3f;
-                move1 += 0.3f;
+                move -= 0.15f;
+                move1 += 0.15f;
                 prevTime = crntTime;
                 if (move < 39.0f) {
                     doMove = false;
                 }
             }
             else {
-                move += 0.3f;
-                move1 -= 0.3f;
+                move += 0.15f;
+                move1 -= 0.15f;
                 prevTime = crntTime;
                 if (move >= 57.0f) {
                     doMove = true;
@@ -349,85 +369,14 @@ int main()
                 GL_UNSIGNED_INT,     // index data type
                 (void*)(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
         }
-        glm::mat4 projection1 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
-        glm::mat4 model1 = glm::mat4(1.0f);
-        model1 = glm::translate(model, glm::vec3(move, 12.5f, 159.9f)); // translate it down so it's at the center of the scene
-        ourShader.use();
-        ourShader.setMat4("projection", projection1);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model1);
-        body.Draw(ourShader);
-        
-
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(move, 12.5f, 159.9f));
-        model2 = glm::rotate(model2, glm::radians(rotation),glm::vec3(0.0,1.0,0.0));
-        ourShader.setMat4("model", model2);
-        head.Draw(ourShader);
-
-        glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model, glm::vec3(move, 12.5f, 149.9f));
-        ourShader.setMat4("projection", projection1);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model3);
-        body1.Draw(ourShader);
-
-        glm::mat4 model4 = glm::mat4(1.0f);
-        model4 = glm::translate(model4, glm::vec3(move, 12.5f, 149.9f));
-        model4 = glm::rotate(model4, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model4);
-        head1.Draw(ourShader);
-
-        glm::mat4 model5 = glm::mat4(1.0f);
-        model5 = glm::translate(model, glm::vec3(move, 12.5f, 139.9f));
-        ourShader.setMat4("projection", projection1);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model5);
-        body2.Draw(ourShader);
-
-        glm::mat4 model6 = glm::mat4(1.0f);
-        model6 = glm::translate(model6, glm::vec3(move, 12.5f, 139.9f));
-        model6 = glm::rotate(model6, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model6);
-        head2.Draw(ourShader);
-
-        glm::mat4 model7 = glm::mat4(1.0f);
-        model7 = glm::translate(model, glm::vec3(move1, 12.5f, 154.9f));
-        ourShader.setMat4("projection", projection1);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model7);
-        body3.Draw(ourShader);
-
-        glm::mat4 model8 = glm::mat4(1.0f);
-        model8 = glm::translate(model8, glm::vec3(move1, 12.5f, 154.9f));
-        model8 = glm::rotate(model8, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model8);
-        head3.Draw(ourShader);
 
 
-        glm::mat4 model9 = glm::mat4(1.0f);
-        model9 = glm::translate(model, glm::vec3(move1, 12.5f, 144.9f));
-        ourShader.setMat4("projection", projection1);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model9);
-        body4.Draw(ourShader);
-
-        glm::mat4 model10 = glm::mat4(1.0f);
-        model10 = glm::translate(model10, glm::vec3(move1, 12.5f, 144.9f));
-        model10 = glm::rotate(model10, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model10);
-        head4.Draw(ourShader);
-
+            // shader configuration
+    // --------------------
         lightingShader.use();
         lightingShader.setVec3("viewPos", camera.Position);
-        lightingShader.setFloat("material.shininess", 32.0f);
+        
 
-        /*
-           Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
-           the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
-           by defining light types as classes and set their values in there, or by using a more efficient uniform approach
-           by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
-        */
         // directional light
         lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
         lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
@@ -435,6 +384,7 @@ int main()
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
         // point light 1
         lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        lightingShader.setVec3("pointLights[0].color", pointLightColours[0]);
         lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -443,6 +393,7 @@ int main()
         lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
         // point light 2
         lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        lightingShader.setVec3("pointLights[1].color", pointLightColours[1]);
         lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
         lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
@@ -451,6 +402,7 @@ int main()
         lightingShader.setFloat("pointLights[1].quadratic", 0.032f);
         // point light 3
         lightingShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        lightingShader.setVec3("pointLights[2].color", pointLightColours[2]);
         lightingShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
         lightingShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
@@ -459,6 +411,7 @@ int main()
         lightingShader.setFloat("pointLights[2].quadratic", 0.032f);
         // point light 4
         lightingShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        lightingShader.setVec3("pointLights[3].color", pointLightColours[3]);
         lightingShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
         lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
@@ -485,7 +438,112 @@ int main()
 
         // world transformation
         glm::mat4 model15 = glm::mat4(1.0f);
-        lightingShader.setMat4("model", model15);       
+        lightingShader.setMat4("model", model15);    
+
+        // render containers
+                
+        lightingShader.setFloat("material.shininess", 32.0f);
+        glm::mat4 projection1 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
+        glm::mat4 model1 = glm::mat4(1.0f);
+        model1 = glm::translate(model, glm::vec3(move, 12.5f, 159.9f));
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("model", model1);
+        body.Draw(lightingShader);
+
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, glm::vec3(move, 12.5f, 159.9f));
+        model2 = glm::rotate(model2, glm::radians(rotation),glm::vec3(0.0,1.0,0.0));
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model2);
+        head.Draw(lightingShader);
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
+
+        lightingShader.setFloat("material.shininess", 132.0f);
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model, glm::vec3(move, 12.5f, 149.9f));
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model3);
+        body1.Draw(lightingShader);
+
+        glm::mat4 model4 = glm::mat4(1.0f);
+        model4 = glm::translate(model4, glm::vec3(move, 12.5f, 149.9f));
+        model4 = glm::rotate(model4, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        lightingShader.setMat4("model", model4);
+        head1.Draw(lightingShader);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap2);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap2);
+
+        lightingShader.setFloat("material.shininess", 232.0f);
+
+        glm::mat4 model5 = glm::mat4(1.0f);
+        model5 = glm::translate(model, glm::vec3(move, 12.5f, 139.9f));
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model5);
+        body2.Draw(lightingShader);
+
+        glm::mat4 model6 = glm::mat4(1.0f);
+        model6 = glm::translate(model6, glm::vec3(move, 12.5f, 139.9f));
+        model6 = glm::rotate(model6, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        lightingShader.setMat4("model", model6);
+        head2.Draw(lightingShader);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap3);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap3);
+
+        lightingShader.setFloat("material.shininess", 52.0f);
+        glm::mat4 model7 = glm::mat4(1.0f);
+        model7 = glm::translate(model, glm::vec3(move1, 12.5f, 154.9f));
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model7);
+        body3.Draw(lightingShader);
+
+        glm::mat4 model8 = glm::mat4(1.0f);
+        model8 = glm::translate(model8, glm::vec3(move1, 12.5f, 154.9f));
+        model8 = glm::rotate(model8, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        lightingShader.setMat4("model", model8);
+        head3.Draw(lightingShader);
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap1);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap1);
+
+        lightingShader.setFloat("material.shininess", 32.0f);
+        glm::mat4 model9 = glm::mat4(1.0f);
+        model9 = glm::translate(model, glm::vec3(move1, 12.5f, 144.9f));
+        lightingShader.setMat4("projection", projection1);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model9);
+        body4.Draw(lightingShader);
+
+        glm::mat4 model10 = glm::mat4(1.0f);
+        model10 = glm::translate(model10, glm::vec3(move1, 12.5f, 144.9f));
+        model10 = glm::rotate(model10, glm::radians(rotation), glm::vec3(0.0, 1.0, 0.0));
+        lightingShader.setMat4("model", model10);
+        head4.Draw(lightingShader);
+
+
+
 
         // also draw the lamp object(s)
         lightCubeShader.use();
@@ -500,6 +558,7 @@ int main()
             model15 = glm::translate(model15, pointLightPositions[i]);
             model15 = glm::scale(model15, glm::vec3(2.0f)); // Make it a smaller cube
             lightCubeShader.setMat4("model", model15);
+            lightCubeShader.setVec3("lightColor", pointLightColours[i]);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -507,6 +566,9 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+ 
+
+
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
@@ -594,4 +656,42 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
+}
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
+unsigned int loadTexture(char const* path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }

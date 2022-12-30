@@ -17,6 +17,7 @@ struct DirLight {
 
 struct PointLight {
     vec3 position;
+    vec3 color;
     
     float constant;
     float linear;
@@ -53,6 +54,8 @@ uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
+uniform sampler2D texture_diffuse1;
+
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -74,12 +77,13 @@ void main()
     // phase 1: directional lighting
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     // phase 2: point lights
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
+    for(int i = 0; i < NR_POINT_LIGHTS; i++){
+        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+    }
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
     
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(vec3(texture(material.diffuse, TexCoords)),0.0)+vec4(result, 1.0)-vec4(0.25f,0.25f,0.25f,0.0f);
 }
 
 // calculates the color when using a directional light.
@@ -117,7 +121,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
-    return (ambient + diffuse + specular);
+    return (ambient + diffuse + specular)*light.color;
 }
 
 // calculates the color when using a spot light.
