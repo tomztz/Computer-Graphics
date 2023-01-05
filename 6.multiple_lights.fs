@@ -42,13 +42,23 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;       
 };
+struct FogParameters
+{
+    vec3 color; // Color to be used with fog, usually grayish
+    float linearStart; // This is where linear fog starts (valid for linear equation only)
+    float linearEnd; // This is where linear fog ends (valid for linear equation only)
+    float density; // Density of the fog, used by exp and exp2 equation
+    
+    int equation; // Used fog equation, 3 options are valid - 0 = linear, 1 = exp, 2 = exp2
+    bool isEnabled; // Flag telling if fog is enabled or not
+};
 
 #define NR_POINT_LIGHTS 4
 
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
-
+layout (location = 0) in vec3 aPos;
 uniform vec3 viewPos;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
@@ -56,11 +66,13 @@ uniform SpotLight spotLight;
 uniform Material material;
 uniform sampler2D texture_diffuse1;
 
-
+smooth in vec4 ioEyeSpacePosition;
+uniform FogParameters fogParams;
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+float getFogFactor(FogParameters params, float fogCoordinate);
 
 void main()
 {    
@@ -84,6 +96,12 @@ void main()
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
     
     FragColor = vec4(vec3(texture(material.diffuse, TexCoords)),0.0)+vec4(result, 1.0)-vec4(0.25f,0.25f,0.25f,0.0f);
+
+    if(fogParams.isEnabled)
+    {       
+          float fogCoordinate = abs(ioEyeSpacePosition.z / ioEyeSpacePosition.w);
+          FragColor = mix(FragColor, vec4(fogParams.color, 1.0), getFogFactor(fogParams,fogCoordinate));
+    }
 }
 
 // calculates the color when using a directional light.
@@ -148,4 +166,24 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
     return (ambient + diffuse + specular);
+}
+//fog fs
+
+float getFogFactor(FogParameters params, float fogCoordinate)
+{
+    float result = 0.0;
+    if(params.equation == 0)
+    {
+        float fogLength = params.linearEnd - params.linearStart;
+        result = (params.linearEnd - fogCoordinate) / fogLength;
+    }
+    else if(params.equation == 1) {
+        result = exp(-params.density * fogCoordinate);
+    }
+    else if(params.equation == 2) {
+        result = exp(-pow(params.density * fogCoordinate, 2.0));
+    }
+    
+    result = 1.0 - clamp(result, 0.0, 1.0);
+    return result;
 }
