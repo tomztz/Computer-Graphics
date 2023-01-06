@@ -58,7 +58,6 @@ struct FogParameters
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
-layout (location = 0) in vec3 aPos;
 uniform vec3 viewPos;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
@@ -95,7 +94,7 @@ void main()
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
     
-    FragColor = vec4(vec3(texture(material.diffuse, TexCoords)),0.0)+vec4(result, 1.0)-vec4(0.25f,0.25f,0.25f,0.0f);
+    FragColor = vec4(vec3(texture(material.diffuse, TexCoords)),0.0)+vec4(result, 1.0)-vec4(0.25f,0.25f,0.25f,0.0f)+vec4(result, 0.0);
 
     if(fogParams.isEnabled)
     {       
@@ -167,7 +166,6 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     specular *= attenuation * intensity;
     return (ambient + diffuse + specular);
 }
-//fog fs
 
 float getFogFactor(FogParameters params, float fogCoordinate)
 {

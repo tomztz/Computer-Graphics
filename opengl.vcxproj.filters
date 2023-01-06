@@ -47,5 +47,11 @@
     <None Include="6.multiple_lights.vs">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="6.1.skybox.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="6.1.skybox.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
