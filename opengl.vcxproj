@@ -142,6 +142,8 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="3.1.blending.fs" />
+    <None Include="3.1.blending.vs" />
     <None Include="6.1.skybox.fs" />
     <None Include="6.1.skybox.vs" />
     <None Include="6.light_cube.fs" />

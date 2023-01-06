@@ -82,7 +82,11 @@ int main()
     stbi_set_flip_vertically_on_load(false);
     // configure global opengl state
     // -----------------------------
+        // configure global opengl state
+    // -----------------------------
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // build and compile our shader program
     // ------------------------------------
@@ -90,6 +94,8 @@ int main()
     Shader lightingShader("6.multiple_lights.vs", "6.multiple_lights.fs");
     Shader lightCubeShader("6.light_cube.vs", "6.light_cube.fs");
     Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs");
+    Shader shader("3.1.blending.vs", "3.1.blending.fs");
+
 
     Model head("models/head/head.obj");
     Model body("models/body/body.obj");
@@ -105,6 +111,10 @@ int main()
 
     Model head4("models/headMetal/head.obj");
     Model body4("models/bodyMetal/bodyMetal.obj");
+
+    Model snowman("models/test/mysnowman.obj");
+
+    Model house("models/house/medieval_house.obj");
 
       
     // load and create a texture
@@ -255,6 +265,71 @@ int main()
          1.0f, -1.0f,  1.0f
     };
 
+    float transparentVertices[] = {
+        // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
+    float cubeVertices[] = {
+        // positions          // texture Coords
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
+    float planeVertices[] = {
+        // positions          // texture Coords 
+         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+         5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+    };
+
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3(57.0f,  18.5f,  154.9f),
@@ -322,6 +397,20 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
+
+    // transparent VAO
+    unsigned int transparentVAO, transparentVBO;
+    glGenVertexArrays(1, &transparentVAO);
+    glGenBuffers(1, &transparentVBO);
+    glBindVertexArray(transparentVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
+
     float rotation = 0.0f;
     double prevTime = glfwGetTime();
     bool doRotate = true;
@@ -350,7 +439,9 @@ int main()
         "resources/textures/skybox/front.jpg",
         "resources/textures/skybox/back.jpg"
     };
+
     unsigned int cubemapTexture = loadCubemap(faces);
+
     // render loop
     // -----------
     lightingShader.use();
@@ -359,6 +450,7 @@ int main()
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -373,6 +465,7 @@ int main()
                 // input
                 // -----
         processInput(window);
+
 
         // render
         // ------
@@ -415,6 +508,23 @@ int main()
             }
            
         }
+        shader.use();
+        glm::mat4 projection16 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view16 = camera.GetViewMatrix();
+        glm::mat4 model16 = glm::mat4(1.0f);
+        shader.setMat4("projection", projection16);
+        shader.setMat4("view", view16);
+
+        // windows (from furthest to nearest)
+        glBindVertexArray(transparentVAO);
+
+
+        model16 = glm::mat4(1.0f);
+        model16 = glm::translate(model16, glm::vec3(57.0f, 18.5f, 154.9f));
+        shader.setMat4("model", model16);
+        snowman.Draw(shader);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        
 
         // be sure to activate shader when setting uniforms/drawing objects
         heightMapShader.use();
@@ -632,9 +742,13 @@ int main()
         {
             model15 = glm::mat4(1.0f);
             model15 = glm::translate(model15, pointLightPositions[i]);
-            model15 = glm::scale(model15, glm::vec3(2.0f)); // Make it a smaller cube
+            model15 = glm::scale(model15, glm::vec3(1.0f)); // Make it a smaller cube
             lightCubeShader.setMat4("model", model15);
             lightCubeShader.setVec3("lightColor", pointLightColours[i]);
+            lightCubeShader.setBool("fogParams.isEnabled", true);
+            lightCubeShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
+            lightCubeShader.setInt("fogParams.equation", 2);
+            lightCubeShader.setFloat("fogParams.density", 0.01135f);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // draw skybox as last
@@ -648,6 +762,7 @@ int main()
         skyboxShader.setInt("fogParams.equation", 2);
         skyboxShader.setFloat("fogParams.density", 0.01135f);
 
+
         // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -655,6 +770,8 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
