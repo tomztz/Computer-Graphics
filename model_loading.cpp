@@ -114,8 +114,9 @@ int main()
 
     Model snowman("models/test/mysnowman.obj");
 
-    Model house("models/house/medieval_house.obj");
+    Model house("models/house/medieval.obj");
 
+  
       
     // load and create a texture
     // -------------------------
@@ -265,6 +266,7 @@ int main()
          1.0f, -1.0f,  1.0f
     };
 
+
     float transparentVertices[] = {
         // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
@@ -274,60 +276,6 @@ int main()
         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
         1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
         1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-    };
-    float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-    float planeVertices[] = {
-        // positions          // texture Coords 
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-         5.0f, -0.5f, -5.0f,  2.0f, 2.0f
     };
 
     // positions of the point lights
@@ -344,7 +292,11 @@ int main()
     glm::vec3(0.0f,  1.0f,  0.0f),
     glm::vec3(1.0f,  0.0f,  1.0f),
     };
-
+    vector<glm::vec3> vegetation
+    {
+        glm::vec3(67.0f, 9.0f, 154.9f),
+        glm::vec3(67.0f, 9.0f, 134.9f),
+    };
     // first, configure the cube's VAO (and VBO)
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
@@ -398,7 +350,6 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
 
-    // transparent VAO
     unsigned int transparentVAO, transparentVBO;
     glGenVertexArrays(1, &transparentVAO);
     glGenBuffers(1, &transparentVBO);
@@ -429,7 +380,7 @@ int main()
 
     unsigned int diffuseMap3 = loadTexture("models/bodyTiles/TilesCeramicSubwayOffsetCrackle002_COL_4K.jpg");
     unsigned int specularMap3 = loadTexture("models/bodyTiles/TilesCeramicSubwayOffsetCrackle002_REFL_4K.jpg");
-
+    unsigned int transparentTexture = loadTexture("models/test/snowmansnowmanmat1_baseColor.png");
     vector<std::string> faces
     {
         "resources/textures/skybox/right.jpg",
@@ -451,6 +402,8 @@ int main()
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
 
+    shader.use();
+    shader.setInt("texture1", 0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -465,6 +418,7 @@ int main()
                 // input
                 // -----
         processInput(window);
+        
 
 
         // render
@@ -508,22 +462,9 @@ int main()
             }
            
         }
-        shader.use();
-        glm::mat4 projection16 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view16 = camera.GetViewMatrix();
-        glm::mat4 model16 = glm::mat4(1.0f);
-        shader.setMat4("projection", projection16);
-        shader.setMat4("view", view16);
-
-        // windows (from furthest to nearest)
-        glBindVertexArray(transparentVAO);
 
 
-        model16 = glm::mat4(1.0f);
-        model16 = glm::translate(model16, glm::vec3(57.0f, 18.5f, 154.9f));
-        shader.setMat4("model", model16);
-        snowman.Draw(shader);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         
 
         // be sure to activate shader when setting uniforms/drawing objects
@@ -617,6 +558,8 @@ int main()
         lightingShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
         lightingShader.setInt("fogParams.equation", 2);
         lightingShader.setFloat("fogParams.density", 0.01135f);
+
+
 
         // view/projection transformations
         glm::mat4 projection2 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
@@ -730,6 +673,11 @@ int main()
         lightingShader.setMat4("model", model10);
         head4.Draw(lightingShader);
 
+        glm::mat4 model18 = glm::mat4(1.0f);
+        model18 = glm::translate(model18, glm::vec3(67.0f, 9.0f, 144.9f));
+        lightingShader.setMat4("model", model18);
+        house.Draw(lightingShader);
+
 
         // also draw the lamp object(s)
         lightCubeShader.use();
@@ -745,11 +693,37 @@ int main()
             model15 = glm::scale(model15, glm::vec3(1.0f)); // Make it a smaller cube
             lightCubeShader.setMat4("model", model15);
             lightCubeShader.setVec3("lightColor", pointLightColours[i]);
-            lightCubeShader.setBool("fogParams.isEnabled", true);
-            lightCubeShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
-            lightCubeShader.setInt("fogParams.equation", 2);
-            lightCubeShader.setFloat("fogParams.density", 0.01135f);
             glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+      
+        lightCubeShader.setBool("fogParams.isEnabled", false);
+        lightCubeShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
+        lightCubeShader.setInt("fogParams.equation", 2);
+        lightCubeShader.setFloat("fogParams.density", 0.01135f);
+
+
+        std::map<float, glm::vec3> sorted;
+        for (unsigned int i = 0; i < vegetation.size(); i++)
+        {
+            float distance = glm::length(camera.Position - vegetation[i]);
+            sorted[distance] = vegetation[i];
+        }
+        // windows (from furthest to nearest)
+        shader.use();
+        glm::mat4 projection16 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view16 = camera.GetViewMatrix();
+        glm::mat4 model16 = glm::mat4(1.0f);
+        shader.setMat4("projection", projection16);
+        shader.setMat4("view", view16);
+        glBindVertexArray(transparentVAO);
+        glBindTexture(GL_TEXTURE_2D, transparentTexture);
+        for (unsigned int i = 0; i < vegetation.size(); i++)
+        {
+            model16 = glm::mat4(1.0f);
+            model16 = glm::translate(model16, vegetation[i]);
+            shader.setMat4("model", model16);
+            snowman.Draw(shader);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -761,7 +735,6 @@ int main()
         skyboxShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
         skyboxShader.setInt("fogParams.equation", 2);
         skyboxShader.setFloat("fogParams.density", 0.01135f);
-
 
         // skybox cube
         glBindVertexArray(skyboxVAO);
