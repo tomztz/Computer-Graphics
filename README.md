@@ -6,7 +6,7 @@ Winter scene developed during college for the module computer graphics using ope
 
 ## Project demo
 
-[Youtube_required](https://www.youtube.com/watch?v=srMH6e6A6bo)
+[Youtube_required](https://www.youtube.com/watch?v=srMH6e6A6bo)\
 [Youtube_advanced](https://www.youtube.com/watch?v=LCakMi2JI54)
 
 ## Project report
