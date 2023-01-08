@@ -1,13 +1,13 @@
 ﻿  model_loading.cpp
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(161,28): warning C4018: '<': signed/unsigned mismatch
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(163,32): warning C4018: '<': signed/unsigned mismatch
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(412,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(489,40): warning C4018: '<': signed/unsigned mismatch
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(824,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(825,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(829,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(830,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(832,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(833,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\tomzt\source\repos\opengl\model_loading.cpp(842,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(163,28): warning C4018: '<': signed/unsigned mismatch
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(165,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(414,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(487,40): warning C4018: '<': signed/unsigned mismatch
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(822,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(823,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(827,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(828,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(830,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(831,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\tomzt\source\repos\opengl\model_loading.cpp(840,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   opengl.vcxproj -> C:\Users\tomzt\source\repos\opengl\x64\Debug\opengl.exe

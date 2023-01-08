@@ -1,6 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
 
+//This code is based on the code from learnopengl.com
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;

@@ -19,6 +19,7 @@ struct FogParameters
 
 float getFogFactor(FogParameters params, float fogCoordinate);
 
+//This code is based on the code from learnopengl.com
 uniform FogParameters fogParams;
 
 uniform samplerCube skybox;

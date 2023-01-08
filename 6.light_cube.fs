@@ -31,6 +31,7 @@ void main()
     
 }
 
+//This code is based on the code from learnopengl.com
 float getFogFactor(FogParameters params, float fogCoordinate)
 {
     float result = 0.0;

@@ -1,3 +1,6 @@
+/*This code is based on the code from learnopengl.com*/
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
@@ -82,8 +85,7 @@ int main()
     stbi_set_flip_vertically_on_load(false);
     // configure global opengl state
     // -----------------------------
-        // configure global opengl state
-    // -----------------------------
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -297,7 +299,7 @@ int main()
         glm::vec3(67.0f, 9.0f, 154.9f),
         glm::vec3(67.0f, 9.0f, 134.9f),
     };
-    // first, configure the cube's VAO (and VBO)
+    // configure the cube's VAO (and VBO)
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
@@ -312,7 +314,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+    //configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     unsigned int lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
@@ -413,10 +415,10 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 ;
-        //        std::cout << deltaTime << "ms (" << 1.0f / deltaTime << " FPS)" << std::endl;
 
-                // input
-                // -----
+
+        // input
+        // -----
         processInput(window);
         
 
@@ -463,10 +465,6 @@ int main()
            
         }
 
-
-
-        
-
         // be sure to activate shader when setting uniforms/drawing objects
         heightMapShader.use();
 
@@ -485,7 +483,7 @@ int main()
         heightMapShader.setFloat("fogParams.density", 0.01135f);
         // render the cube
         glBindVertexArray(terrainVAO);
-        //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         for (unsigned strip = 0; strip < numStrips; strip++)
         {
             glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
@@ -696,7 +694,7 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
       
-        lightCubeShader.setBool("fogParams.isEnabled", false);
+        lightCubeShader.setBool("fogParams.isEnabled", true);
         lightCubeShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
         lightCubeShader.setInt("fogParams.equation", 2);
         lightCubeShader.setFloat("fogParams.density", 0.01135f);
@@ -731,7 +729,7 @@ int main()
         view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
-        skyboxShader.setBool("fogParams.isEnabled", false);
+        skyboxShader.setBool("fogParams.isEnabled", true);
         skyboxShader.setVec3("fogParams.color", 0.5f, 0.5f, 0.5f);
         skyboxShader.setInt("fogParams.equation", 2);
         skyboxShader.setFloat("fogParams.density", 0.01135f);
@@ -773,7 +771,7 @@ int main()
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+        glfwSetWindowShouldClose(window, false);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
